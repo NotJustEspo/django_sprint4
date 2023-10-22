@@ -87,7 +87,7 @@ class Post(BaseModel):
 
 
 class Comment(models.Model):
-    text = models.CharField('Комментарий', max_length=MAX_LENGTH_TITLE)
+    text = models.TextField('Комментарий', max_length=MAX_LENGTH_TITLE)
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
