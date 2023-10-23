@@ -36,7 +36,6 @@ ALLOWED_HOSTS = [
 INSTALLED_APPS = [
     'blog.apps.BlogConfig',
     'pages.apps.PagesConfig',
-    'core.apps.CoreConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -143,7 +142,7 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
+CSRF_FAILURE_VIEW = 'pages.views.csrf_failure'
 
 MEDIA_ROOT = BASE_DIR / 'media'
 
