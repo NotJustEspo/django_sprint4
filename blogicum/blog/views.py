@@ -1,6 +1,4 @@
-from typing import Any
 from django.db.models import Count
-from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
@@ -20,7 +18,7 @@ PAGE_SIZE = 10
 
 
 class HomePageListView(ListView):
-    '''VIEW-класс главной страницы'''
+    """VIEW-класс главной страницы"""
 
     model = Post
     template_name = 'blog/index.html'
@@ -42,7 +40,7 @@ class HomePageListView(ListView):
 
 
 class CategoryListView(ListView):
-    '''VIEW-класс страницы категорий'''
+    """VIEW-класс страницы категорий"""
 
     model = Category
     template_name = 'blog/category.html'
@@ -74,7 +72,7 @@ class CategoryListView(ListView):
 
 
 class ProfileListView(ListView):
-    '''VIEW-класс страницы профиля'''
+    """VIEW-класс страницы профиля"""
 
     model = Post
     template_name = 'blog/profile.html'
@@ -121,7 +119,7 @@ class ProfileListView(ListView):
 
 
 class ProfileUpdateView(LoginRequiredMixin, UpdateView):
-    '''VIEW-класс редактирования профиля пользователя'''
+    """VIEW-класс редактирования профиля пользователя"""
 
     model = User
     form_class = UserForm
@@ -137,7 +135,7 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class PostCreateView(LoginRequiredMixin, CreateView):
-    '''VIEW-класс создания поста'''
+    """VIEW-класс создания поста"""
 
     model = Post
     form_class = PostForm
@@ -154,7 +152,7 @@ class PostCreateView(LoginRequiredMixin, CreateView):
 
 
 class PostDetailView(DetailView):
-    '''VIEW-класс подробной информации о посте'''
+    """VIEW-класс подробной информации о посте"""
 
     model = Post
     template_name = 'blog/detail.html'
@@ -179,7 +177,7 @@ class PostDetailView(DetailView):
 
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
-    '''VIEW-класс редактирования поста'''
+    """VIEW-класс редактирования поста"""
 
     model = Post
     template_name = 'blog/create.html'
@@ -207,7 +205,7 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class PostDeleteView(LoginRequiredMixin, DeleteView):
-    '''VIEW-класс удаления поста'''
+    """VIEW-класс удаления поста"""
 
     model = Post
     template_name = 'blog/create.html'
@@ -236,7 +234,7 @@ class PostDeleteView(LoginRequiredMixin, DeleteView):
 
 
 class CommentCreateView(LoginRequiredMixin, CreateView):
-    '''VIEW-класс создания комментария к посту'''
+    """VIEW-класс создания комментария к посту"""
 
     model = Comment
     form_class = CommentForm
@@ -261,7 +259,7 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
 
 
 class CommentUpdateView(LoginRequiredMixin, UpdateView):
-    '''VIEW-класс редактирования комментария'''
+    """VIEW-класс редактирования комментария"""
 
     model = Comment
     form_class = CommentForm
@@ -283,7 +281,7 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
 
 
 class CommentDeleteView(LoginRequiredMixin, DeleteView):
-    '''VIEW-класс удаления комментария'''
+    """VIEW-класс удаления комментария"""
 
     model = Comment
     form_class = CommentForm
