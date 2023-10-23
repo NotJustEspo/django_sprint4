@@ -1,18 +1,20 @@
+from typing import Any
+from django.db.models import Count
+from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404, redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
+from django.urls import reverse, reverse_lazy
 from django.views.generic import (
     CreateView,
     DeleteView,
     DetailView,
     ListView,
     UpdateView,)
-from django.db.models import Count
-from django.urls import reverse, reverse_lazy
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
 
-from blog.models import Category, Post, User, Comment
-from .forms import PostForm, UserForm, CommentForm
+from blog.models import Category, Comment, Post, User
+from .forms import CommentForm, PostForm, UserForm
 
 PAGE_SIZE = 10
 
@@ -21,17 +23,20 @@ class HomePageListView(ListView):
     model = Post
     template_name = 'blog/index.html'
     paginate_by = PAGE_SIZE
-    queryset = Post.objects.select_related(
-        'location',
-        'category',
-        'author',
-    ).annotate(
-        comment_count=Count('comments')
-    ).filter(
-        is_published=True,
-        category__is_published=True,
-        pub_date__lte=timezone.now()
-    ).order_by('-pub_date',)
+
+    def get_queryset(self):
+        queryset = Post.objects.select_related(
+            'location',
+            'category',
+            'author',
+        ).annotate(
+            comment_count=Count('comments')
+        ).filter(
+            is_published=True,
+            category__is_published=True,
+            pub_date__lte=timezone.now()
+        ).order_by('-pub_date',)
+        return queryset
 
 
 class CategoryListView(ListView):
