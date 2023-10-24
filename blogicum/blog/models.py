@@ -90,7 +90,6 @@ class Comment(models.Model):
     post = models.ForeignKey(
         Post,
         on_delete=models.CASCADE,
-        related_name='comments',
     )
     author = models.ForeignKey(
         User,
@@ -101,6 +100,7 @@ class Comment(models.Model):
     )
 
     class Meta:
+        default_related_name = 'comments'
         ordering = ('created_at',)
 
     def __str__(self):
