@@ -16,6 +16,25 @@ from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
 
 
+def get_default_queryset(query_filter, query_annotate):
+    queryset = Post.objects.select_related(
+        'location',
+        'category',
+        'author'
+    )
+    if query_filter:
+        queryset = queryset.filter(
+            is_published=True,
+            category__is_published=True,
+            pub_date__lte=timezone.now()
+        )
+    if query_annotate:
+        queryset = queryset.annotate(
+            comment_count=Count('comments')
+        ).order_by('-pub_date')
+    return queryset
+
+
 class HomePageListView(ListView):
     """VIEW-класс главной страницы"""
 
@@ -24,18 +43,7 @@ class HomePageListView(ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
-        queryset = Post.objects.select_related(
-            'location',
-            'category',
-            'author',
-        ).annotate(
-            comment_count=Count('comments')
-        ).filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=timezone.now()
-        ).order_by('-pub_date',)
-        return queryset
+        return get_default_queryset(True, True)
 
 
 class CategoryListView(ListView):
@@ -46,18 +54,13 @@ class CategoryListView(ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
-        return Post.objects.select_related(
-            'location',
-            'category',
-            'author'
-        ).filter(
-            category__slug=self.kwargs['category_slug'],
-            is_published=True,
-            pub_date__lte=timezone.now()
-        ).annotate(
-            comment_count=Count('comments')
-        ).order_by(
-            '-pub_date')
+        return get_default_queryset(
+            False,
+            True).filter(
+                category__slug=self.kwargs['category_slug'],
+                is_published=True,
+                pub_date__lte=timezone.now()
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -84,29 +87,16 @@ class ProfileListView(ListView):
             username=self.kwargs['username']
         )
         if user.username == self.request.user.username:
-            return Post.objects.select_related(
-                'location',
-                'category',
-                'author'
-            ).annotate(
-                comment_count=Count('comments')
-            ).filter(
+            return get_default_queryset(
+                False,
+                True).filter(
+                    author=user
+            )
+        return get_default_queryset(
+            True,
+            True).filter(
                 author=user
-            ).order_by(
-                '-pub_date')
-        return Post.objects.select_related(
-            'location',
-            'category',
-            'author'
-        ).filter(
-            is_published=True,
-            category__is_published=True,
-            pub_date__lte=timezone.now(),
-            author=user
-        ).annotate(
-            comment_count=Count('comments')
-        ).order_by(
-            '-pub_date')
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
