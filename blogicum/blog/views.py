@@ -1,3 +1,4 @@
+from blogicum.settings import PAGE_SIZE
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,8 +14,6 @@ from django.http import Http404
 
 from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
-
-PAGE_SIZE = 10
 
 
 class HomePageListView(ListView):
