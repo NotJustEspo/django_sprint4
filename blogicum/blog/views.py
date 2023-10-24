@@ -1,6 +1,3 @@
-from typing import Any
-from django import http
-from django.db import models
 from blogicum.settings import PAGE_SIZE
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
@@ -13,7 +10,7 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,)
-from django.http import Http404, HttpResponse
+from django.http import Http404
 
 from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
@@ -186,7 +183,10 @@ class PostDetailView(DetailView):
         return context
 
 
-class PostUpdateView(PostDispatchMixin, LoginRequiredMixin, PostMixin, UpdateView):
+class PostUpdateView(PostDispatchMixin,
+                     LoginRequiredMixin,
+                     PostMixin,
+                     UpdateView):
     """VIEW-класс редактирования поста"""
 
     pk_url_kwarg = 'post_id'
@@ -198,10 +198,14 @@ class PostUpdateView(PostDispatchMixin, LoginRequiredMixin, PostMixin, UpdateVie
     def get_success_url(self):
         return reverse(
             'blog:post_detail',
-            kwargs={'post_id': self.post_obj.id})
+            kwargs={'post_id': self.post_obj.id}
+        )
 
 
-class PostDeleteView(PostDispatchMixin, LoginRequiredMixin, PostMixin, DeleteView):
+class PostDeleteView(PostDispatchMixin,
+                     LoginRequiredMixin,
+                     PostMixin,
+                     DeleteView):
     """VIEW-класс удаления поста"""
 
     pk_url_kwarg = 'post_id'
