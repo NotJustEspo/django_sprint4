@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -48,5 +48,5 @@ urlpatterns = [
     path(
         'posts/<int:post_id>/delete_comment/<int:comment_id>/',
         views.CommentDeleteView.as_view(),
-        name='delete_comment',),
+        name='delete_comment',)
 ]
