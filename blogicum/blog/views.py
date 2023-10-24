@@ -16,6 +16,12 @@ from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
 
 
+class PostMixin:
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/create.html'
+
+
 def get_default_queryset(query_filter, query_annotate):
     queryset = Post.objects.select_related(
         'location',
@@ -120,12 +126,8 @@ class ProfileUpdateView(LoginRequiredMixin, UpdateView):
             kwargs={'username': self.request.user})
 
 
-class PostCreateView(LoginRequiredMixin, CreateView):
+class PostCreateView(LoginRequiredMixin, PostMixin, CreateView):
     """VIEW-класс создания поста"""
-
-    model = Post
-    form_class = PostForm
-    template_name = 'blog/create.html'
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -162,12 +164,9 @@ class PostDetailView(DetailView):
         return context
 
 
-class PostUpdateView(LoginRequiredMixin, UpdateView):
+class PostUpdateView(LoginRequiredMixin, PostMixin, UpdateView):
     """VIEW-класс редактирования поста"""
 
-    model = Post
-    template_name = 'blog/create.html'
-    form_class = PostForm
     pk_url_kwarg = 'post_id'
 
     def dispatch(self, request, *args, **kwargs):
@@ -190,11 +189,9 @@ class PostUpdateView(LoginRequiredMixin, UpdateView):
             kwargs={'username': self.request.user})
 
 
-class PostDeleteView(LoginRequiredMixin, DeleteView):
+class PostDeleteView(LoginRequiredMixin, PostMixin, DeleteView):
     """VIEW-класс удаления поста"""
 
-    model = Post
-    template_name = 'blog/create.html'
     pk_url_kwarg = 'post_id'
 
     def dispatch(self, request, *args, **kwargs):
