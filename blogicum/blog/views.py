@@ -250,7 +250,8 @@ class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         instance = get_object_or_404(
             Comment,
-            id=kwargs['comment_id'],)
+            id=kwargs['comment_id'],
+            post=kwargs['post_id'])
         if instance.author != request.user:
             raise Http404
         return super().dispatch(request, *args, **kwargs)
@@ -258,7 +259,7 @@ class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
     def get_success_url(self):
         return reverse(
             'blog:post_detail',
-            kwargs={'post_id': self.kwargs['comment_id']})
+            kwargs={'post_id': self.kwargs['post_id']})
 
 
 class CommentDeleteView(LoginRequiredMixin, CommentMixin, DeleteView):
