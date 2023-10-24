@@ -164,7 +164,6 @@ class PostCreateView(LoginRequiredMixin, PostMixin, CreateView):
 class PostDetailView(DetailView):
     """VIEW-класс подробной информации о посте"""
 
-    # model = Post
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
 
@@ -173,14 +172,12 @@ class PostDetailView(DetailView):
 
     def get_object(self):
         post = super().get_object()
-        if self.request.user == post.author:
-            return post
-        else:
-            return get_object_or_404(Post.objects.filter(
-                is_published=True,
-                category__is_published=True,
-                pub_date__lte=timezone.now()
-            ), id=self.kwargs['post_id'])
+        if not (self.request.user == post.author) and \
+            (post.is_published is False
+             or post.category.is_published is False
+                or post.pub_date > timezone.now()):
+            raise Http404
+        return post
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
