@@ -1,3 +1,6 @@
+from typing import Any
+from django import http
+from django.db import models
 from blogicum.settings import PAGE_SIZE
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
@@ -10,7 +13,7 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,)
-from django.http import Http404
+from django.http import Http404, HttpResponse
 
 from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
@@ -20,6 +23,25 @@ class PostMixin:
     model = Post
     form_class = PostForm
     template_name = 'blog/create.html'
+
+
+class PostDispatchMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        self.post_obj = get_object_or_404(
+            Post,
+            id=kwargs['post_id'])
+        if self.post_obj.author != request.user:
+            return redirect(
+                'blog:post_detail',
+                post_id=self.kwargs['post_id'])
+        return super().dispatch(request, *args, **kwargs)
+
+
+class CommentMixin:
+    model = Comment
+    form_class = CommentForm
+    template_name = 'blog/comment.html'
 
 
 def get_default_queryset(query_filter, query_annotate):
@@ -142,14 +164,17 @@ class PostCreateView(LoginRequiredMixin, PostMixin, CreateView):
 class PostDetailView(DetailView):
     """VIEW-класс подробной информации о посте"""
 
-    model = Post
+    # model = Post
     template_name = 'blog/detail.html'
     pk_url_kwarg = 'post_id'
 
+    def get_queryset(self):
+        return get_default_queryset(False, False)
+
     def get_object(self):
-        post_author = super().get_object()
-        if self.request.user == post_author.author:
-            return post_author
+        post = super().get_object()
+        if self.request.user == post.author:
+            return post
         else:
             return get_object_or_404(Post.objects.filter(
                 is_published=True,
@@ -164,20 +189,10 @@ class PostDetailView(DetailView):
         return context
 
 
-class PostUpdateView(LoginRequiredMixin, PostMixin, UpdateView):
+class PostUpdateView(PostDispatchMixin, LoginRequiredMixin, PostMixin, UpdateView):
     """VIEW-класс редактирования поста"""
 
     pk_url_kwarg = 'post_id'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.post_obj = get_object_or_404(
-            Post,
-            id=kwargs['post_id'])
-        if self.post_obj.author != request.user:
-            return redirect(
-                'blog:post_detail',
-                post_id=self.kwargs['post_id'])
-        return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         form.instance.author = self.request.user
@@ -185,25 +200,14 @@ class PostUpdateView(LoginRequiredMixin, PostMixin, UpdateView):
 
     def get_success_url(self):
         return reverse(
-            'blog:profile',
-            kwargs={'username': self.request.user})
+            'blog:post_detail',
+            kwargs={'post_id': self.post_obj.id})
 
 
-class PostDeleteView(LoginRequiredMixin, PostMixin, DeleteView):
+class PostDeleteView(PostDispatchMixin, LoginRequiredMixin, PostMixin, DeleteView):
     """VIEW-класс удаления поста"""
 
     pk_url_kwarg = 'post_id'
-
-    def dispatch(self, request, *args, **kwargs):
-        self.post_obj = get_object_or_404(
-            Post,
-            id=kwargs['post_id'],
-        )
-        if self.post_obj.author != request.user:
-            return redirect(
-                'blog:post_detail',
-                post_id=self.kwargs['post_id'])
-        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -216,12 +220,9 @@ class PostDeleteView(LoginRequiredMixin, PostMixin, DeleteView):
             kwargs={'username': self.request.user})
 
 
-class CommentCreateView(LoginRequiredMixin, CreateView):
+class CommentCreateView(LoginRequiredMixin, CommentMixin, CreateView):
     """VIEW-класс создания комментария к посту"""
 
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment.html'
     pk_url_kwarg = 'post_id'
 
     def dispatch(self, request, *args, **kwargs):
@@ -241,12 +242,9 @@ class CommentCreateView(LoginRequiredMixin, CreateView):
             kwargs={'post_id': self.post_obj.id})
 
 
-class CommentUpdateView(LoginRequiredMixin, UpdateView):
+class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
     """VIEW-класс редактирования комментария"""
 
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
 
     def dispatch(self, request, *args, **kwargs):
@@ -263,12 +261,9 @@ class CommentUpdateView(LoginRequiredMixin, UpdateView):
             kwargs={'post_id': self.kwargs['comment_id']})
 
 
-class CommentDeleteView(LoginRequiredMixin, DeleteView):
+class CommentDeleteView(LoginRequiredMixin, CommentMixin, DeleteView):
     """VIEW-класс удаления комментария"""
 
-    model = Comment
-    form_class = CommentForm
-    template_name = 'blog/comment.html'
     pk_url_kwarg = 'comment_id'
 
     def dispatch(self, request, *args, **kwargs):
