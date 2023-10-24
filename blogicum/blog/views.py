@@ -54,6 +54,11 @@ class CategoryListView(ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
+        self.category = get_object_or_404(
+            Category,
+            slug=self.kwargs['category_slug'],
+            is_published=True
+        )
         return get_default_queryset(
             False,
             True).filter(
@@ -64,12 +69,7 @@ class CategoryListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        category = get_object_or_404(
-            Category,
-            slug=self.kwargs['category_slug'],
-            is_published=True
-        )
-        context['category'] = category
+        context['category'] = self.category
         return context
 
 
