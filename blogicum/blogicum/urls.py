@@ -1,9 +1,9 @@
 from django.contrib import admin
-from django.urls import path, include, reverse_lazy
 from django.conf import settings
-from django.contrib.auth.forms import UserCreationForm
-from django.views.generic.edit import CreateView
 from django.conf.urls.static import static
+from django.contrib.auth.forms import UserCreationForm
+from django.urls import path, include, reverse_lazy
+from django.views.generic.edit import CreateView
 
 
 urlpatterns = [
