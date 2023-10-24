@@ -82,28 +82,25 @@ class ProfileListView(ListView):
     paginate_by = PAGE_SIZE
 
     def get_queryset(self):
-        user = get_object_or_404(
+        self.user = get_object_or_404(
             User,
             username=self.kwargs['username']
         )
-        if user.username == self.request.user.username:
+        if self.user == self.request.user:
             return get_default_queryset(
                 False,
                 True).filter(
-                    author=user
+                    author=self.user
             )
         return get_default_queryset(
             True,
             True).filter(
-                author=user
+                author=self.user
         )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = get_object_or_404(
-            User,
-            username=self.kwargs['username'])
-        context['profile'] = user
+        context['profile'] = self.user
         return context
 
 
