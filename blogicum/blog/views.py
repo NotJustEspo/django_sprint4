@@ -1,6 +1,6 @@
-from blogicum.settings import PAGE_SIZE
 from django.db.models import Count
 from django.shortcuts import get_object_or_404, redirect
+from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
@@ -65,7 +65,7 @@ class HomePageListView(ListView):
 
     model = Post
     template_name = 'blog/index.html'
-    paginate_by = PAGE_SIZE
+    paginate_by = settings.PAGE_SIZE
 
     def get_queryset(self):
         return get_default_queryset(True, True)
@@ -76,7 +76,7 @@ class CategoryListView(ListView):
 
     model = Category
     template_name = 'blog/category.html'
-    paginate_by = PAGE_SIZE
+    paginate_by = settings.PAGE_SIZE
 
     def get_queryset(self):
         self.category = get_object_or_404(
@@ -104,7 +104,7 @@ class ProfileListView(ListView):
     model = Post
     template_name = 'blog/profile.html'
     slug_url_kwarg = 'username'
-    paginate_by = PAGE_SIZE
+    paginate_by = settings.PAGE_SIZE
 
     def get_queryset(self):
         self.user = get_object_or_404(
