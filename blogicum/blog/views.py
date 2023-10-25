@@ -40,6 +40,25 @@ class CommentMixin:
     template_name = 'blog/comment.html'
 
 
+class CommentCreateUpdateMixin:
+    pk_url_kwarg = 'comment_id'
+
+    def dispatch(self, request, *args, **kwargs):
+        instance = get_object_or_404(
+            Comment,
+            id=kwargs['comment_id'],
+            post=kwargs['post_id'])
+        if instance.author != request.user:
+            raise Http404
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(
+            'blog:post_detail',
+            kwargs={'post_id': self.kwargs['post_id']}
+        )
+
+
 def get_default_queryset(query_filter, query_annotate):
     queryset = Post.objects.select_related(
         'location',
@@ -237,41 +256,15 @@ class CommentCreateView(LoginRequiredMixin, CommentMixin, CreateView):
             kwargs={'post_id': self.post_obj.id})
 
 
-class CommentUpdateView(LoginRequiredMixin, CommentMixin, UpdateView):
+class CommentUpdateView(CommentCreateUpdateMixin,
+                        LoginRequiredMixin,
+                        CommentMixin,
+                        UpdateView):
     """VIEW-класс редактирования комментария"""
 
-    pk_url_kwarg = 'comment_id'
 
-    def dispatch(self, request, *args, **kwargs):
-        instance = get_object_or_404(
-            Comment,
-            id=kwargs['comment_id'],
-            post=kwargs['post_id'])
-        if instance.author != request.user:
-            raise Http404
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail',
-            kwargs={'post_id': self.kwargs['post_id']})
-
-
-class CommentDeleteView(LoginRequiredMixin, CommentMixin, DeleteView):
+class CommentDeleteView(CommentCreateUpdateMixin,
+                        LoginRequiredMixin,
+                        CommentMixin,
+                        DeleteView):
     """VIEW-класс удаления комментария"""
-
-    pk_url_kwarg = 'comment_id'
-
-    def dispatch(self, request, *args, **kwargs):
-        instance = get_object_or_404(
-            Comment,
-            id=kwargs['comment_id'])
-        if instance.author != request.user:
-            raise Http404
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_success_url(self):
-        return reverse(
-            'blog:post_detail',
-            kwargs={'post_id': self.kwargs['post_id']}
-        )
