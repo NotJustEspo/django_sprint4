@@ -66,9 +66,6 @@ class HomePageListView(ListView):
     template_name = 'blog/index.html'
     paginate_by = settings.PAGE_SIZE
 
-    # def get_queryset(self):
-    #     return get_default_queryset(True, True)
-
 
 class CategoryListView(ListView):
     """VIEW-класс страницы категорий"""
@@ -84,11 +81,9 @@ class CategoryListView(ListView):
             is_published=True
         )
         return get_default_queryset(
-            False,
+            True,
             True).filter(
-                category__slug=self.kwargs['category_slug'],
-                is_published=True,
-                pub_date__lte=timezone.now()
+                category=self.category
         )
 
     def get_context_data(self, **kwargs):
