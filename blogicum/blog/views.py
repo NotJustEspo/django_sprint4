@@ -1,7 +1,8 @@
-from django.db.models import Count
-from django.shortcuts import get_object_or_404, redirect
 from django.conf import settings
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Count
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils import timezone
 from django.urls import reverse, reverse_lazy
 from django.views.generic import (
@@ -10,7 +11,6 @@ from django.views.generic import (
     DetailView,
     ListView,
     UpdateView,)
-from django.http import Http404
 
 from blog.models import Category, Comment, Post, User
 from .forms import CommentForm, PostForm, UserForm
@@ -23,7 +23,6 @@ class PostMixin:
 
 
 class PostDispatchMixin:
-
     def dispatch(self, request, *args, **kwargs):
         self.post_obj = get_object_or_404(
             Post,
@@ -63,12 +62,12 @@ def get_default_queryset(query_filter, query_annotate):
 class HomePageListView(ListView):
     """VIEW-класс главной страницы"""
 
-    model = Post
+    queryset = get_default_queryset(True, True)
     template_name = 'blog/index.html'
     paginate_by = settings.PAGE_SIZE
 
-    def get_queryset(self):
-        return get_default_queryset(True, True)
+    # def get_queryset(self):
+    #     return get_default_queryset(True, True)
 
 
 class CategoryListView(ListView):
