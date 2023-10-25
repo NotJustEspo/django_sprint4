@@ -163,9 +163,9 @@ class PostDetailView(DetailView):
 
     def get_object(self):
         post = super().get_object()
-        if not (self.request.user == post.author) and \
-            (post.is_published is False
-             or post.category.is_published is False
+        if not (self.request.user == post.author) and (
+            post.is_published is False
+            or post.category.is_published is False
                 or post.pub_date > timezone.now()):
             raise Http404
         return post
